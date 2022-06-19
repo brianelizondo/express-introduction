@@ -6,14 +6,18 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 function getNumbers(arr){
-    let numbers_s = arr.split(',');
-    let numbers = numbers_s.map(x => parseInt(x));
-    numbers.forEach(function (value, idx){
-        if(isNaN(value)){
-            throw new ExpressError(`'${numbers_s[idx]}' is not a number`, 400);
-        }
-    });  
-    return numbers;
+    if(arr){
+        let numbers_s = arr.split(',');
+        let numbers = numbers_s.map(x => parseInt(x));
+        numbers.forEach(function (value, idx){
+            if(isNaN(value)){
+                throw new ExpressError(`'${numbers_s[idx]}' is not a number`, 400);
+            }
+        });  
+        return numbers;
+    }else{
+        throw new ExpressError("'nums' are required", 400);
+    }
 }
 
 app.get('/mean', (req, res, next) => {

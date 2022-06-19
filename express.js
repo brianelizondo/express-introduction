@@ -2,18 +2,35 @@ const express = require('express');
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+const fs = require('fs');
 
 const ExpressError = require('./expressError');
 const { checkResult, getMean, getMedian, getMode } = require('./helpers');
+let SAVE_FILE = true;
 
 
 app.get('/mean', (req, res, next) => {
     try {
         let result = getMean(req.query.nums);
-        return res.send({
+
+        let result_content = {
             "operation": "mean",
             "value": checkResult(result)
-        });
+        }
+        
+        if(req.query.save){
+            let save_value = req.query.save;
+            SAVE_FILE = save_value.toLowerCase() == 'true' ? true : false;
+        }
+        if(SAVE_FILE){
+            fs.appendFile('./results.json', JSON.stringify(result_content), 'utf8', (err) => {
+                if (err){
+                    throw new ExpressError("File write failed", 400);
+                }
+            });
+        }
+        
+        return res.send(result_content);
     } catch (err){
         return next(err);
     }

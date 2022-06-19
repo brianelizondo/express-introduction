@@ -2,6 +2,7 @@
 * JS with all functions to calculate the mean, median and mode
 */
 const ExpressError = require('./expressError');
+const fs = require('fs');
 
 function checkResult(result){
     if(result != 0){
@@ -78,9 +79,26 @@ function getMode(arr){
     }
 }
 
+function checkSaveFile(option){
+    let save_value = option.toLowerCase() == 'true' ? true : false;
+    return save_value;
+}
+
+function appendFile(content){
+    const currentDate = new Date().toUTCString();
+    let new_content = `${currentDate} \n ${content} \n \n`;
+    fs.appendFile('./results.json', new_content, 'utf8', (err) => {
+        if (err){
+            throw new ExpressError("File write failed", 400);
+        }
+    });
+}
+
 module.exports = {
     checkResult,
     getMean,
     getMedian,
-    getMode
+    getMode,
+    checkSaveFile,
+    appendFile
 };

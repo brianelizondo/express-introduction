@@ -2,10 +2,9 @@ const express = require('express');
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-const fs = require('fs');
 
 const ExpressError = require('./expressError');
-const { checkResult, getMean, getMedian, getMode } = require('./helpers');
+const { checkResult, getMean, getMedian, getMode, checkSaveFile, appendFile } = require('./helpers');
 let SAVE_FILE = true;
 
 
@@ -18,17 +17,8 @@ app.get('/mean', (req, res, next) => {
             "value": checkResult(result)
         }
         
-        if(req.query.save){
-            let save_value = req.query.save;
-            SAVE_FILE = save_value.toLowerCase() == 'true' ? true : false;
-        }
-        if(SAVE_FILE){
-            fs.appendFile('./results.json', JSON.stringify(result_content), 'utf8', (err) => {
-                if (err){
-                    throw new ExpressError("File write failed", 400);
-                }
-            });
-        }
+        if(req.query.save){ SAVE_FILE = checkSaveFile(req.query.save); }
+        if(SAVE_FILE){ appendFile(JSON.stringify(result_content)); }
         
         return res.send(result_content);
     } catch (err){
@@ -39,10 +29,16 @@ app.get('/mean', (req, res, next) => {
 app.get('/median', (req, res, next) => {
     try {
         let result = getMedian(req.query.nums);
-        return res.send({
+
+        let result_content = {
             "operation": "median",
             "value": checkResult(result)
-        });
+        };
+
+        if(req.query.save){ SAVE_FILE = checkSaveFile(req.query.save); }
+        if(SAVE_FILE){ appendFile(JSON.stringify(result_content)); }
+        
+        return res.send(result_content);
     } catch (err){
         return next(err);
     }
@@ -51,10 +47,16 @@ app.get('/median', (req, res, next) => {
 app.get('/mode', (req, res, next) => {
     try {
         let result = getMode(req.query.nums);
-        return res.send({
+        
+        let result_content = {
             "operation": "mode",
             "value": checkResult(result)
-        });
+        };
+
+        if(req.query.save){ SAVE_FILE = checkSaveFile(req.query.save); }
+        if(SAVE_FILE){ appendFile(JSON.stringify(result_content)); }
+        
+        return res.send(result_content);
     } catch (err){
         return next(err);
     }
@@ -66,12 +68,17 @@ app.get('/all', (req, res, next) => {
         let result_median = getMedian(req.query.nums);
         let result_mode = getMode(req.query.nums);
         
-        return res.send({
+        let result_content = {
             "operation": "all",
             "mean": checkResult(result_mean),
             "median": checkResult(result_median),
             "mode": checkResult(result_mode)
-        });
+        };
+
+        if(req.query.save){ SAVE_FILE = checkSaveFile(req.query.save); }
+        if(SAVE_FILE){ appendFile(JSON.stringify(result_content)); }
+        
+        return res.send(result_content);
     } catch (err){
         return next(err);
     }

@@ -3,12 +3,9 @@
 */
 const ExpressError = require('./expressError');
 
-function checkResult(operation, result){
+function checkResult(result){
     if(result != 0){
-        return {
-            "operation": operation,
-            "value": result
-        };
+        return result;
     }else{
         throw new ExpressError("'nums' are required", 400);
     }

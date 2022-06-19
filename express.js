@@ -10,7 +10,10 @@ const { checkResult, getMean, getMedian, getMode } = require('./helpers');
 app.get('/mean', (req, res, next) => {
     try {
         let result = getMean(req.query.nums);
-        return res.send(checkResult("mean", result));
+        return res.send({
+            "operation": "mean",
+            "value": checkResult(result)
+        });
     } catch (err){
         return next(err);
     }
@@ -19,7 +22,10 @@ app.get('/mean', (req, res, next) => {
 app.get('/median', (req, res, next) => {
     try {
         let result = getMedian(req.query.nums);
-        return res.send(checkResult("median", result));
+        return res.send({
+            "operation": "median",
+            "value": checkResult(result)
+        });
     } catch (err){
         return next(err);
     }
@@ -28,7 +34,27 @@ app.get('/median', (req, res, next) => {
 app.get('/mode', (req, res, next) => {
     try {
         let result = getMode(req.query.nums);
-        return res.send(checkResult("mode", result));
+        return res.send({
+            "operation": "mode",
+            "value": checkResult(result)
+        });
+    } catch (err){
+        return next(err);
+    }
+});
+
+app.get('/all', (req, res, next) => {
+    try {
+        let result_mean = getMean(req.query.nums);
+        let result_median = getMedian(req.query.nums);
+        let result_mode = getMode(req.query.nums);
+        
+        return res.send({
+            "operation": "all",
+            "mean": checkResult(result_mean),
+            "median": checkResult(result_median),
+            "mode": checkResult(result_mode)
+        });
     } catch (err){
         return next(err);
     }
